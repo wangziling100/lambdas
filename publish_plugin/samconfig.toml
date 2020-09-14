@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "publish_plugin# app path" # your app name
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-161lv729ydotn" 
+s3_prefix = "publish_plugin# app path"
+region = "eu-central-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"

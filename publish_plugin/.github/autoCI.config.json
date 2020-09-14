@@ -1,0 +1,10 @@
+{
+    "actions":[
+        "cd publish_plugin && yarn install",
+        "cd publish_plugin && yarn test",
+        "cd publish_plugin && rm -r test",
+        "sam build",
+        "sam local invoke \"PublishPlugin\" -e events/event.json --env-vars env.json",
+        "sam deploy"
+    ]
+}

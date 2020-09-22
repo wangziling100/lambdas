@@ -19,6 +19,10 @@ jobs:
             # npm cache files are stored in `~/.npm` on Linux/macOS
             path: node_modules
             key: ${{ runner.os }}-${{ hashFiles('**/yarn-lock.json') }}
+      - name: install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
       # - name: Install sam
         # run: pip install aws-sam-cli >/dev/null 2>&1
       - name: auto-ci

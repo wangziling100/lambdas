@@ -1,0 +1,11 @@
+{
+    "actions":[
+        "pip install aws-sam-cli", 
+        "cd secrete_controller && yarn install",
+        "cd secrete_controller && yarn test",
+        "cd secrete_controller && rm -r test",
+        "sam build",
+        "sam local invoke \"SecreteControllerFunction\" -e events/event.json --env-vars env.json",
+        "sam deploy"
+    ]
+}

@@ -9,3 +9,4 @@ del_sec.sh
 new_sec.sh
 gen_encrypted.py
 clear.sh
+**/.aws-sam/*

@@ -1,0 +1,33 @@
+name: Auto CI
+
+on:
+  push
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    outputs:
+      moduleDir: ${{ steps.auto-ci.outputs.moduleDir}}
+      info: ${{ steps.auto-ci.outputs.info}}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+            cache-name: cache-node-modules
+        with:
+            # npm cache files are stored in `~/.npm` on Linux/macOS
+            path: node_modules
+            key: ${{ runner.os }}-${{ hashFiles('**/yarn-lock.json') }}
+      - name: Install sam
+        run: pip install aws-sam-cli >/dev/null 2>&1
+      - name: auto-ci
+        id: auto-ci
+        uses: wangziling100/AutoCI@v1.0.8
+        with:
+          configPath: .github/autoCI.config.json
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-central-1
+          SAM_CLI_TELEMETRY: 0

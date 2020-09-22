@@ -2,7 +2,7 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "secrete_controller" # your app name
+stack_name = "secreteController" # your app name
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-161lv729ydotn" 
 s3_prefix = "secrete_controller"
 region = "eu-central-1"

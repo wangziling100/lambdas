@@ -7,6 +7,43 @@ const {
     getPublicKey,
     deleteSecret,} = require('../app').module
 
+const handler = require('../app').handler
+
+//----------------------test1-----------------
+console.log('----------------test1----------------')
+const event = {
+    body: JSON.stringify({
+        option: 'create',
+        userName: 'user1',
+        repo: 'test',
+        token: 'test-token',
+        password: 'test-password',
+        secrets: {
+            secret1: 'abc',
+            secret2: 'bcd'
+        }
+    })
+}
+const response1 = {
+    'statusCode': 412,
+        'body': JSON.stringify({
+            message: 'Precondition Failed'
+    })
+}
+handler(event)
+.then(res => {
+    //if (res!==response1) throw 'test failed'
+    for (let index in res){
+        if (res[index]!==response1[index]) throw 'test faild'
+    }
+    console.log('test1 succeed!')
+})
+.catch(err=>{
+    console.error('test1 failed')
+})
+
+// ---------------------test2-----------------
+console.log('--------------test2-----------------')
 let token
 try{
     token = require('./env').TOKEN
@@ -38,5 +75,5 @@ deleteSecret(token, 'TEST', 'wangziling100', 'lambdas')
     console.log(resp)
 })
 .catch(err => {
-    console.error(err.message)
+    //console.error(err.message)
 })

@@ -1,7 +1,10 @@
 const handler = require('../app').handler
-const {genEncryptedSecret, getPublicKey} = require('../app').module
+const {
+    genEncryptedSecret, 
+    checkInput, 
+    setResponse,
+} = require('../app').module
 const nacl = require('tweetnacl')
-const axios = require('axios').default;
 //jest.mock('axios')
 let token
 try{
@@ -10,12 +13,11 @@ try{
 catch{
     token = process.env.TOKEN
 }
-console.log(token, 'token')
 const event = {
     body: JSON.stringify({
         option: 'create',
         userName: 'user1',
-        repo: '-',
+        repo: 'test',
         token: 'test-token',
         password: 'test-password',
         secrets: {
@@ -24,13 +26,20 @@ const event = {
         }
     })
 }
-test('handler', ()=>{
-    expect(handler(event)).toEqual({
-        statusCode: 200,
-        body: JSON.stringify({
-            message: 'Hello World!'
-        })
+const response1 = {
+    'statusCode': 412,
+        'body': JSON.stringify({
+            message: 'Precondition Failed'
     })
+}
+const response2 = {
+    'statusCode': 200,
+        'body': JSON.stringify({
+            message: 'OK'
+    })
+}
+test('handler', ()=>{
+    expect(handler(event)).toEqual(response2)
 })
 
 test('function', ()=>{
@@ -38,16 +47,39 @@ test('function', ()=>{
     console.log(genEncryptedSecret(keyPair.publicKey, 'abac'))
 })
 
-test('fetch public key', ()=>{
-    //await expect(getPublicKey(token, 'AutoPublishTest')).rejects.toThrow('akj');
-    getPublicKey(token, 'AutoPublishTest')
-    .then(res => {console.log(res, 'response')})
-    .catch(err => console.log(err.message))
-    /*
-    const resp = {test:123}
-    axios.get.mockResolvedValue(resp)
-    return getPublicKey(token, 'AutoPublishTest').then(data=>{
-        expect(data).toEqual(resp)
-    })
-    */
+test('check input', ()=>{
+    const body1 = {
+        option: 'create',
+        userName: 'user1',
+        repo: 'test',
+        token: 'test-token',
+        password: 'test-password',
+        secrets: {
+            secret1: 'abc',
+            secret2: 'bcd'
+        }
+    }
+    const body2 = {
+        option: 'create'
+    }
+    const body3 = {
+        option: 'create',
+        password: 'test-password',
+        userName: 'user1',
+        repo: 'test',
+        secrets: {
+            secret1: 'abc'
+        }
+    }
+    expect(checkInput(body1)).toEqual(body1)
+    expect(checkInput(body2)).toEqual(null)
+    expect(checkInput(body3)).toEqual(body3)
+
 })
+
+test('set response', ()=>{
+    
+    expect(setResponse(false)).toEqual(response1)
+    expect(setResponse(true)).toEqual(response2)
+})
+

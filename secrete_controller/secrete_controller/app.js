@@ -1,8 +1,8 @@
 const sodium = require('tweetsodium');
 const util = require('tweetnacl-util');
 const axios = require('axios');
-const { resolve } = require('path');
 let bucketName, dynamo, s3, Auth, https
+const debug = process.env.DEBUG || false
 
 try{
     bucketName = process.env.BUCKET_NAME
@@ -13,33 +13,65 @@ try{
     https = require('https')
 }
 catch(err){
-    console.error(err.message)
+    if(debug) console.error(err.message)
 }
 
-exports.handler= (event, context) =>{
+exports.handler= async (event, context) =>{
     const body = JSON.parse(event.body)
-    const option = body.option
-    let token = body.token
-    const password = body.password
-    const secrets = body.secrets
-    const userName = body.userName
-    const repo = body.repo
-    console.log(option, token, password, secrets, userName, repo)
+    const inputs = checkInput(body)
+    if (inputs===null) return setResponse(false)
+    let {option, token, password, secrets, userName, repo} = inputs
+    if(debug) console.log(option, token, password, secrets, userName, repo)
     try{
         token = getToken(userName, password, token)
+        switch (option){
+            case 'create': {
+                const keyInfo = await getPublicKey(token, userName, repo)
+                const key = keyInfo.key 
+                const keyId = keyInfo.keyId
+                for (let index in secrets){
+                    const encrypted = genEncryptedSecret(key, secrets[index])
+                    const resp = await uploadSecret(token, encrypted, index, keyId, userName, repo)
+                    if(resp!==204 && resp!==201) throw new Error('Upload failed')
+                }
+                break;
+            }
+            case 'delete': {
+                for (let index in secrets){
+                    const resp = await deleteSecret(token, index, userName, repo)
+                    if(resp!==201) throw new Error('Delete failed')
+                }
+                break;
+            }
+            default: return setResponse(false)
+        }
     }
     catch(err){
-        console.error(err.message)
+        if(debug) console.error(err.message)
+        return setResponse(false)
     }
-    const response = {
-        'statusCode': 200,
-        'body': JSON.stringify({
-            message: 'Hello World!'
-        })
-    }
-    return response
+    
+    return setResponse(true)
 }
 
+function setResponse(succeed=true){
+    if(succeed===false){
+        return {
+            'statusCode': 412,
+            'body': JSON.stringify({
+                message: 'Precondition Failed'
+            })
+        }
+    }
+    else{
+        return {
+            'statusCode': 200,
+            'body': JSON.stringify({
+                message: 'OK'
+            })
+        }
+    }
+}
 
 async function getToken(userName, password, token){
     if (token !== null || token !== undefined){
@@ -82,7 +114,7 @@ async function getTokenFromDB(userName, password){
         }
     })
     .catch((err) => {
-        console.log(err)
+        if(debug) console.log(err)
     })
     return result
 }
@@ -110,7 +142,6 @@ function genEncryptedSecret(key, value){
 async function getPublicKey(token, userName, repo){
     let result
     const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/public-key'
-    console.log(url)
     await axios.get(url, {
         headers:{
             authorization: 'Bearer ' + token
@@ -120,7 +151,7 @@ async function getPublicKey(token, userName, repo){
         result = res.data
     } )
     .catch(err => {
-        console.error(err.message)
+        if(debug) console.error(err.message)
     })
     return result
 }
@@ -150,8 +181,8 @@ repo,
     })
     .catch(err => {
         const response = err.response
-        console.error(response.status, response.statusText)
-        console.error(response.data)
+        if (debug) console.error(response.status, response.statusText)
+        if (debug) console.error(response.data)
     })
     return result
 
@@ -177,10 +208,41 @@ repo,
     })
     .catch(err => {
         const response = err.response
-        console.error(response.status, response.statusText)
-        console.error(response.data)
+        if (debug) console.error(response.status, response.statusText)
+        if (debug) console.error(response.data)
     })
     return result
+}
+
+function checkInput(body){
+    try{
+        const result = {
+            option: body.option,
+            token: body.token,
+            password: body.password,
+            secrets: body.secrets,
+            userName: body.userName,
+            repo: body.repo
+        }
+        const required = []
+        required.push(result.option)
+        required.push(result.secrets)
+        required.push(result.userName)
+        required.push(result.repo)
+        if (result.password===undefined){
+            required.push(result.token)
+        }
+        for (let el of required){
+            if (el===undefined){
+                throw "Required input is undefined."
+            }
+        }
+        return result
+    }    
+    catch(err){
+        if (debug) console.error(err)
+        return null
+    }
 }
 
 exports.module= {
@@ -188,4 +250,6 @@ exports.module= {
     getPublicKey: getPublicKey,
     uploadSecret: uploadSecret,
     deleteSecret: deleteSecret,
+    checkInput: checkInput,
+    setResponse: setResponse,
 }

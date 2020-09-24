@@ -135,8 +135,6 @@ repo,
 ){
     let result 
     const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/'+secretId
-    console.log(url, 'url')
-    console.log(token, 'token')
     await axios.put(url, {
         "encrypted_value": encrypted,
         "key_id": keyId
@@ -159,8 +157,35 @@ repo,
 
 }
 
+async function deleteSecret(
+token, 
+secretId,
+userName,
+repo,
+){
+    let result 
+    const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/'+secretId
+    await axios.delete(url, 
+    {
+        headers:{
+            authorization: 'Bearer ' + token,
+            "content-type": "application/json"
+        }
+    })
+    .then( res => {
+        result = res.status
+    })
+    .catch(err => {
+        const response = err.response
+        console.error(response.status, response.statusText)
+        console.error(response.data)
+    })
+    return result
+}
+
 exports.module= {
     genEncryptedSecret: genEncryptedSecret,
     getPublicKey: getPublicKey,
     uploadSecret: uploadSecret,
+    deleteSecret: deleteSecret,
 }

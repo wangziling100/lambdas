@@ -1,7 +1,11 @@
 /**
  *  node test/request_test.js
  */
-const {uploadSecret, genEncryptedSecret, getPublicKey} = require('../app').module
+const {
+    uploadSecret, 
+    genEncryptedSecret, 
+    getPublicKey,
+    deleteSecret,} = require('../app').module
 
 let token
 try{
@@ -10,7 +14,6 @@ try{
 catch{
     token = process.env.TOKEN
 }
-
 getPublicKey(token, 'wangziling100', 'lambdas')
 .then(key => {
     //console.log(key, 'key 1')
@@ -27,5 +30,13 @@ getPublicKey(token, 'wangziling100', 'lambdas')
 })
 .then(resp => {
     console.log(resp)
-    if(resp!==204) throw new Error('Wron status code')
+    if(resp!==204 && resp!==201) throw new Error('Wrong status code')
+})
+
+deleteSecret(token, 'TEST', 'wangziling100', 'lambdas')
+.then(resp => {
+    console.log(resp)
+})
+.catch(err => {
+    console.error(err.message)
 })

@@ -8,6 +8,7 @@ const {
     deleteSecret,} = require('../app').module
 
 const handler = require('../app').handler
+const axios = require('axios')
 
 //----------------------test1-----------------
 console.log('----------------test1----------------')
@@ -76,4 +77,23 @@ deleteSecret(token, 'TEST', 'wangziling100', 'lambdas')
 })
 .catch(err => {
     //console.error(err.message)
+})
+// ----------------------test3-----------------------------------------
+console.log('----------------------test3------------------------')
+const url = 'https://ocq2zcfiy2.execute-api.eu-central-1.amazonaws.com/Prod/secrete_controller'
+axios.post(url, {
+    token: token,
+    userName: 'wangziling100',
+    password: 'test',
+    option: 'create',
+    repo: 'lambdas',
+    secrets: {
+        test: 'test'
+    }
+})
+.then(res=>{
+    console.log(res)
+})
+.catch(err=>{
+    console.error(err)
 })

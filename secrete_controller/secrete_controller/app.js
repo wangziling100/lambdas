@@ -8,9 +8,11 @@ try{
     bucketName = process.env.BUCKET_NAME
     const AWS = require('aws-sdk');
     dynamo = new AWS.DynamoDB.DocumentClient({region: 'eu-central-1'})
+    /*
     s3 = new AWS.S3()
     Auth = require('@octokit/auth')
     https = require('https')
+    */
 }
 catch(err){
     if(debug) console.error(err.message)
@@ -23,7 +25,7 @@ exports.handler= async (event, context) =>{
     let {option, token, password, secrets, userName, repo} = inputs
     if(debug) console.log(option, token, password, secrets, userName, repo)
     try{
-        token = getToken(userName, password, token)
+        token = await getToken(userName, password, token)
         switch (option){
             case 'create': {
                 const keyInfo = await getPublicKey(token, userName, repo)

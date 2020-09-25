@@ -41,7 +41,7 @@ exports.handler= async (event, context) =>{
             case 'delete': {
                 for (let index in secrets){
                     const resp = await deleteSecret(token, index, userName, repo)
-                    if(resp!==201) throw new Error('Delete failed')
+                    if(resp!==201 && resp!==204) throw new Error('Delete failed')
                 }
                 break;
             }
@@ -80,14 +80,14 @@ async function getToken(userName, password, token){
         await storeInDB(userName, password, token)
     }
     else{
-        const [ succeed, token ] = getTokenFromDB(userName, password)
+        token = await getTokenFromDB(userName, password)
     }
     return token
 }
 
 async function storeInDB(userName, password, token){
     const params = {
-        TableName: 'GithubTokens',
+        TableName: 'GithubToken',
         Item: {
             userName: userName,
             password: password,
@@ -99,7 +99,7 @@ async function storeInDB(userName, password, token){
 
 async function getTokenFromDB(userName, password){
     const params = {
-        TableName: 'GithubTokens',
+        TableName: 'GithubToken',
         Key:{
             userName: userName,
             password: password

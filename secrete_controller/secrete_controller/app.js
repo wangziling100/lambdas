@@ -30,7 +30,7 @@ exports.handler= async (event, context) =>{
             case 'create': {
                 const keyInfo = await getPublicKey(token, userName, repo)
                 const key = keyInfo.key 
-                const keyId = keyInfo.keyId
+                const keyId = keyInfo.key_id
                 for (let index in secrets){
                     const encrypted = genEncryptedSecret(key, secrets[index])
                     const resp = await uploadSecret(token, encrypted, index, keyId, userName, repo)

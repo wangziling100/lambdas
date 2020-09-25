@@ -88,7 +88,7 @@ axios.post(url, {
     option: 'create',
     repo: 'lambdas',
     secrets: {
-        test: 'test'
+        TEST1: 'test'
     }
 })
 .then(res=>{

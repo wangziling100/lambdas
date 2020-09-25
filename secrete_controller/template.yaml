@@ -17,6 +17,8 @@ Resources:
         - !Ref DependencyLayer
       Handler: app.handler
       Runtime: nodejs12.x
+      Policies:
+      - AmazonDynamoDBFullAccess
       Events:
         Gateway:
           Type: Api

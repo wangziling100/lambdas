@@ -76,7 +76,7 @@ function setResponse(succeed=true){
 }
 
 async function getToken(userName, password, token){
-    if (token !== null || token !== undefined){
+    if (token !== null && token !== undefined){
         await storeInDB(userName, password, token)
     }
     else{

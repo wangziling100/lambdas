@@ -28,14 +28,22 @@ const event = {
 }
 const response1 = {
     'statusCode': 412,
-        'body': JSON.stringify({
-            message: 'Precondition Failed'
+    'headers': {
+        "Access-Control-Allow-Origin":"*", 
+        "Access-Control-Allow-Headers": "Content-Type",
+    },
+    'body': JSON.stringify({
+        message: 'Precondition Failed'
     })
 }
 const response2 = {
     'statusCode': 200,
-        'body': JSON.stringify({
-            message: 'OK'
+    'headers': {
+        "Access-Control-Allow-Origin":"*", 
+        "Access-Control-Allow-Headers": "Content-Type",
+    },
+    'body': JSON.stringify({
+        message: 'OK'
     })
 }
 /*

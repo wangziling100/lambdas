@@ -82,10 +82,10 @@ deleteSecret(token, 'TEST', 'wangziling100', 'lambdas')
 console.log('----------------------test3------------------------')
 const url = 'https://ocq2zcfiy2.execute-api.eu-central-1.amazonaws.com/Prod/secrete_controller'
 axios.post(url, {
-    token: token,
+    //token: token,
     userName: 'wangziling100',
     password: 'test',
-    option: 'create',
+    option: 'delete',
     repo: 'lambdas',
     secrets: {
         TEST1: 'test'

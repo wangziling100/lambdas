@@ -41,7 +41,7 @@ exports.handler= async (event, context) =>{
             case 'delete': {
                 for (let index in secrets){
                     const resp = await deleteSecret(token, index, userName, repo)
-                    if(resp!==201 && resp!==204) throw new Error('Delete failed')
+                    if(resp!==201 && resp!==204 && resp!==undefined) throw new Error('Delete failed')
                 }
                 break;
             }
@@ -60,6 +60,10 @@ function setResponse(succeed=true){
     if(succeed===false){
         return {
             'statusCode': 412,
+            'headers': {
+                "Access-Control-Allow-Origin":"*", 
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
             'body': JSON.stringify({
                 message: 'Precondition Failed'
             })
@@ -68,6 +72,10 @@ function setResponse(succeed=true){
     else{
         return {
             'statusCode': 200,
+            'headers': {
+                "Access-Control-Allow-Origin":"*", 
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
             'body': JSON.stringify({
                 message: 'OK'
             })

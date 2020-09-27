@@ -25,6 +25,7 @@ exports.handler= async (event, context) =>{
     let {option, token, password, secrets, username, repo} = inputs
     if(debug) console.log(option, token, password, secrets, username, repo)
     try{
+        let shouldUpdateToken = token?true:false
         token = await getToken(username, password, token)
         switch (option){
             case 'create': {
@@ -35,6 +36,9 @@ exports.handler= async (event, context) =>{
                     const encrypted = genEncryptedSecret(key, secrets[index])
                     const resp = await uploadSecret(token, encrypted, index, keyId, username, repo)
                     if(resp!==204 && resp!==201) throw new Error('Upload failed')
+                }
+                if(shouldUpdateToken){
+                    await storeInDB(username, password, token)
                 }
                 break;
             }
@@ -84,8 +88,9 @@ function setResponse(succeed=true){
 }
 
 async function getToken(username, password, token){
-    if (token !== null && token !== undefined){
-        await storeInDB(username, password, token)
+    if (token !== null && token !== undefined && token!==''){
+        return token
+        //await storeInDB(username, password, token)
     }
     else{
         token = await getTokenFromDB(username, password)
@@ -243,7 +248,7 @@ function checkInput(body){
         required.push(result.username)
         required.push(result.repo)
         console.log(required, 'required')
-        if (result.password===undefined){
+        if (result.password===undefined || result.password===''){
             required.push(result.token)
         }
         for (let el of required){

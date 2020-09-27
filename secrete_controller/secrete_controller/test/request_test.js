@@ -15,7 +15,7 @@ console.log('----------------test1----------------')
 const event = {
     body: JSON.stringify({
         option: 'create',
-        userName: 'user1',
+        username: 'user1',
         repo: 'test',
         token: 'test-token',
         password: 'test-password',
@@ -82,10 +82,10 @@ deleteSecret(token, 'TEST', 'wangziling100', 'lambdas')
 console.log('----------------------test3------------------------')
 const url = 'https://ocq2zcfiy2.execute-api.eu-central-1.amazonaws.com/Prod/secrete_controller'
 axios.post(url, {
-    //token: token,
-    userName: 'wangziling100',
+    token: token,
+    username: 'wangziling100',
     password: 'test',
-    option: 'delete',
+    option: 'create',
     repo: 'lambdas',
     secrets: {
         TEST1: 'test'

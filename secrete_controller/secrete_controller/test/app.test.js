@@ -16,7 +16,7 @@ catch{
 const event = {
     body: JSON.stringify({
         option: 'create',
-        userName: 'user1',
+        username: 'user1',
         repo: 'test',
         token: 'test-token',
         password: 'test-password',
@@ -60,7 +60,7 @@ test('function', ()=>{
 test('check input', ()=>{
     const body1 = {
         option: 'create',
-        userName: 'user1',
+        username: 'user1',
         repo: 'test',
         token: 'test-token',
         password: 'test-password',
@@ -75,15 +75,24 @@ test('check input', ()=>{
     const body3 = {
         option: 'create',
         password: 'test-password',
-        userName: 'user1',
+        username: 'user1',
         repo: 'test',
         secrets: {
             secret1: 'abc'
         }
     }
+    const body4 = {
+        option: 'create',
+        username: 'user1',
+        repo: 'test',
+        token: 'test-token',
+        password: 'test-password',
+        secrets: "{ \"secret1\": \"abc\", \"secret2\": \"bcd\"}"
+    }
     expect(checkInput(body1)).toEqual(body1)
     expect(checkInput(body2)).toEqual(null)
     expect(checkInput(body3)).toEqual(body3)
+    expect(checkInput(body4)).toEqual(body1)
 
 })
 

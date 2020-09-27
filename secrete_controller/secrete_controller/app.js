@@ -22,25 +22,25 @@ exports.handler= async (event, context) =>{
     const body = JSON.parse(event.body)
     const inputs = checkInput(body)
     if (inputs===null) return setResponse(false)
-    let {option, token, password, secrets, userName, repo} = inputs
-    if(debug) console.log(option, token, password, secrets, userName, repo)
+    let {option, token, password, secrets, username, repo} = inputs
+    if(debug) console.log(option, token, password, secrets, username, repo)
     try{
-        token = await getToken(userName, password, token)
+        token = await getToken(username, password, token)
         switch (option){
             case 'create': {
-                const keyInfo = await getPublicKey(token, userName, repo)
+                const keyInfo = await getPublicKey(token, username, repo)
                 const key = keyInfo.key 
                 const keyId = keyInfo.key_id
                 for (let index in secrets){
                     const encrypted = genEncryptedSecret(key, secrets[index])
-                    const resp = await uploadSecret(token, encrypted, index, keyId, userName, repo)
+                    const resp = await uploadSecret(token, encrypted, index, keyId, username, repo)
                     if(resp!==204 && resp!==201) throw new Error('Upload failed')
                 }
                 break;
             }
             case 'delete': {
                 for (let index in secrets){
-                    const resp = await deleteSecret(token, index, userName, repo)
+                    const resp = await deleteSecret(token, index, username, repo)
                     if(resp!==201 && resp!==204 && resp!==undefined) throw new Error('Delete failed')
                 }
                 break;
@@ -83,21 +83,21 @@ function setResponse(succeed=true){
     }
 }
 
-async function getToken(userName, password, token){
+async function getToken(username, password, token){
     if (token !== null && token !== undefined){
-        await storeInDB(userName, password, token)
+        await storeInDB(username, password, token)
     }
     else{
-        token = await getTokenFromDB(userName, password)
+        token = await getTokenFromDB(username, password)
     }
     return token
 }
 
-async function storeInDB(userName, password, token){
+async function storeInDB(username, password, token){
     const params = {
         TableName: 'GithubToken',
         Item: {
-            userName: userName,
+            username: username,
             password: password,
             token: token,
         }
@@ -105,11 +105,11 @@ async function storeInDB(userName, password, token){
     await dynamo.put(params).promise()
 }
 
-async function getTokenFromDB(userName, password){
+async function getTokenFromDB(username, password){
     const params = {
         TableName: 'GithubToken',
         Key:{
-            userName: userName,
+            username: username,
             password: password
         }
     }
@@ -149,9 +149,9 @@ function genEncryptedSecret(key, value){
     return encrypted
 }
 
-async function getPublicKey(token, userName, repo){
+async function getPublicKey(token, username, repo){
     let result
-    const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/public-key'
+    const url = 'https://api.github.com/repos/'+username+'/'+repo+'/actions/secrets/public-key'
     await axios.get(url, {
         headers:{
             authorization: 'Bearer ' + token
@@ -171,11 +171,11 @@ token,
 encrypted, 
 secretId,
 keyId,
-userName,
+username,
 repo,
 ){
     let result 
-    const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/'+secretId
+    const url = 'https://api.github.com/repos/'+username+'/'+repo+'/actions/secrets/'+secretId
     await axios.put(url, {
         "encrypted_value": encrypted,
         "key_id": keyId
@@ -201,11 +201,11 @@ repo,
 async function deleteSecret(
 token, 
 secretId,
-userName,
+username,
 repo,
 ){
     let result 
-    const url = 'https://api.github.com/repos/'+userName+'/'+repo+'/actions/secrets/'+secretId
+    const url = 'https://api.github.com/repos/'+username+'/'+repo+'/actions/secrets/'+secretId
     await axios.delete(url, 
     {
         headers:{
@@ -230,15 +230,19 @@ function checkInput(body){
             option: body.option,
             token: body.token,
             password: body.password,
-            secrets: body.secrets,
-            userName: body.userName,
+            username: body.username,
             repo: body.repo
         }
+        if (typeof(body.secrets)==='string'){
+            result['secrets'] = JSON.parse(body.secrets)
+        }
+        else result['secrets'] = body.secrets
         const required = []
         required.push(result.option)
         required.push(result.secrets)
-        required.push(result.userName)
+        required.push(result.username)
         required.push(result.repo)
+        console.log(required, 'required')
         if (result.password===undefined){
             required.push(result.token)
         }

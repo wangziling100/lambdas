@@ -1,5 +1,6 @@
 {
     "actions":[
+        "node -v",
         "cd uploader && yarn install",
         "cd uploader && yarn test",
         "cd uploader && rm -r test",

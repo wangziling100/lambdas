@@ -20,7 +20,7 @@ jobs:
             path: node_modules
             key: ${{ runner.os }}-${{ hashFiles('**/yarn-lock.json') }}
       - name: Install sam
-        run: pip install aws-sam-cli >/dev/null 2>&1
+        run: pip install aws-sam-cli
       - name: auto-ci
         id: auto-ci
         uses: wangziling100/AutoCI@v1.0.8

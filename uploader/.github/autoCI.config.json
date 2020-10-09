@@ -1,0 +1,10 @@
+{
+    "actions":[
+        "cd uploader && yarn install",
+        "cd uploader && yarn test",
+        "cd uploader && rm -r test",
+        "sam build",
+        "sam local invoke \"UPLOADERFunction\" -e events/event.json --env-vars env.json",
+        "sam deploy"
+    ]
+}

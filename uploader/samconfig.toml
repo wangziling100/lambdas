@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "uploader" # your app name
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-161lv729ydotn" 
+s3_prefix = "uploader"
+region = "eu-central-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
